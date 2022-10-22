@@ -11,7 +11,7 @@ mountingPlateX = 280; //mm
 mountingPlateY = 250; //mm
 mountingPlateZ = 10; //mm
 
-edgeRadius = 5; //mm
+edgeRadius = 10; //mm
 
 mountingAreaX = 238; //mm
 mountingAreaY = 210; //mm
@@ -53,9 +53,10 @@ module mountingPlate(roundEdge = true)
   {
     if(roundEdge == true)
     {
+      translate([edgeRadius,edgeRadius,0])
       minkowski()
       {
-        cube([mountingPlateX,mountingPlateY, mountingPlateZ]);
+        cube([mountingPlateX-edgeRadius*2,mountingPlateY-edgeRadius*2, mountingPlateZ]);
         cylinder(r=edgeRadius, h=0.00001);
       }
     }
