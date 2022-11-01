@@ -7,44 +7,51 @@ $fn = 80;
 
 extra = 0.1;
 
-mountingPlateX = 280; //mm
+mountingPlateX = 270; //mm
 mountingPlateY = 250; //mm
-mountingPlateZ = 10; //mm
+mountingPlateZ = 1; //mm
 
 edgeRadius = 10; //mm
 
 mountingAreaX = 238; //mm
-mountingAreaY = 210; //mm
-mountingAreaMarkerZ = 1; //mm
+mountingAreaY = 240; //mm
+mountingAreaMarkerZ = 0.4; //mm
 
 mountingScrewDia = 3;
 
 /* X root point is the mid hole of the YBackFrame
-   Y root point are the lower holes of YFrontRodIdlers */
+   Y root point are the lower holes of YFrontRodIdlers
+   Debug true to mark this point red, false -> no marking*/
 mountingHoleArray = [
 /*YBackFrame*/
-[  0  ,183],
-[-21.5,167],
-[ 21.5,167],
+[  0  ,193.5, true],
+[-22.5,177  , false],
+[ 22.5,177  , false],
 /*YFrontFrame*/
-[ 10.5, 43],
-[ 21.5, 27],
-[-65.5, 27],
+[ 11.0, 45  , false],
+[ 22.5, 28.5, false],
+[-69.0, 28.5, false],
 /* YFrontRodIdler L */
-[-55  ,  0],
-[-92.5,  0],
-[-74  , 11],
+[-78  , 11  , false],
+[-58  ,-0.5 , false],
+[-98  ,-0.5 , false],
 /* YFrontRodIdler R */
-[ 55  ,  0],
-[ 92.5,  0],
-[ 74  , 11],
+[ 78  , 11  , false],
+[ 58  ,-0.5 , false],
+[ 98  ,-0.5 , false],
 /* XFrames */
-[-101 ,125],
-[-101 ,172],
-[101  ,125],
-[101  ,172],
+[-105 ,213.5, false],
+[-105 ,181.5, false],
+
+[105  ,213.5, false],
+[105  ,181.5, false],
+
+[-105 ,131.5, true],
+[105  ,131.5, true],
 ];
 
+
+yShift = 7;
 
 
 module mountingPlate(roundEdge = true)
@@ -73,17 +80,28 @@ module mountingPlate(roundEdge = true)
       cube([mountingAreaX-2,mountingAreaY-2, mountingAreaMarkerZ+extra]);
     }
 
-    translate([mountingPlateX/2,(mountingPlateY-mountingAreaY)/2+10,0])
+    translate([mountingPlateX/2,(mountingPlateY-mountingAreaY)/2+yShift,0])
     holePattern();
   }
+}
+
+
+module hole(x = 0,y = 0)
+{
+  translate([x,y,0])
+    cylinder(r=mountingScrewDia/2+0.2, h=mountingPlateZ+extra);
 }
 
 module holePattern()
 {
   for (hole = mountingHoleArray)
   {
-    translate([hole[0],hole[1],0])
-    cylinder(r=mountingScrewDia/2+0.2, h=mountingPlateZ+extra);
+    if(hole[2] == false)
+    {
+      hole(x=hole[0],y=hole[1]);
+    }else{
+      #hole(x=hole[0],y=hole[1]);
+    }
   }
 }
 /*
