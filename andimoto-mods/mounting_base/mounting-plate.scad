@@ -100,7 +100,7 @@ module holePattern()
     {
       hole(x=hole[0],y=hole[1]);
     }else{
-      #hole(x=hole[0],y=hole[1]);
+      hole(x=hole[0],y=hole[1]);
     }
   }
 }
