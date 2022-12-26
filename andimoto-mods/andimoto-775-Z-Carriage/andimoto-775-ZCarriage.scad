@@ -6,7 +6,7 @@ Author: andimoto@posteo.de
 $fn=100;
 
 
-LM8UU_TubeDia = 17; //mm
+LM8UU_TubeDia = 17+0.4; //mm
 
 LM8UU_Dia = 15+0.2; //mm
 LM8UU_HoldDia = 12; //mm
@@ -47,10 +47,10 @@ module standardCycloneSpindleCarriage02()
 }
 /* standardCycloneSpindleCarriage02(); */
 
-module M3Screw()
+module M3Screw(d=M3ScrewDia,h=M3ScrewHeight,dHead=M3ScrewHeadDia,hHead=M3ScrewHeadHeight)
 {
-  cylinder(r=M3ScrewDia/2,h=M3ScrewHeight);
-  translate([0,0,M3ScrewHeight]) cylinder(r=M3ScrewHeadDia/2,h=M3ScrewHeadHeight);
+  cylinder(r=d/2,h=h);
+  translate([0,0,h]) cylinder(r=dHead/2,h=hHead);
 }
 
 module andimoto755ZCarriage01()
@@ -79,11 +79,12 @@ module andimoto755ZCarriage01()
     translate([-11+0.095,60,CarriageHeight-M3ScrewHeight])
     M3Screw();
 
+    /* M5 Screws for Spindle Plate */
     translate([LM8U_RefPoint01[0][0]+M5_XDiff,35.6-2,CarriageHeight/2]) plateScrewCutout(rotX=-90, rotY=0, rotZ=0);
     translate([LM8U_RefPoint01[1][0]-M5_XDiff,35.6-2,CarriageHeight/2]) plateScrewCutout(rotX=-90, rotY=0, rotZ=0);
   }
 }
-andimoto755ZCarriage01();
+
 
 
 module andimoto755ZCarriage02()
@@ -112,12 +113,26 @@ module andimoto755ZCarriage02()
     translate([-11+0.095,6,CarriageHeight-M3ScrewHeight])
     M3Screw();
 
-
+    /* M5 Screws for Spindle Plate */
     translate([LM8U_RefPoint02[0][0]+M5_XDiff,30+2,CarriageHeight/2]) plateScrewCutout(rotX=90, rotY=0, rotZ=0);
     translate([LM8U_RefPoint02[1][0]-M5_XDiff,30+2,CarriageHeight/2]) plateScrewCutout(rotX=90, rotY=0, rotZ=0);
   }
 }
-/* andimoto755ZCarriage02(); */
+
+if(0)
+{
+  translate([0,0,0])
+  union()
+  {
+    translate([0,-65.6,25.25*2/*+8.5*/])
+    mirror([0,0,1])
+    andimoto755ZCarriage01();
+    translate([0,0,0])
+    mirror([0,1,0])
+    andimoto755ZCarriage02();
+  }
+}
+
 
 /* close hexagons for making new once */
 module hexFiller()
@@ -143,7 +158,122 @@ module plateScrewCutout(rotX=0, rotY=0, rotZ=0)
   rotate([rotX,rotY,rotZ])
   union()
   {
-    cylinder(r=M5Dia/2, h=40);
+    cylinder(r=M5Dia/2, h=60);
     rotate([0,0,30]) cylinder(r=M5NutDia/2, h=30, $fn=6);
   }
+}
+
+spindlePlateScrewDist = 69.5;
+spindlePlateX = 86;
+spindlePlateZ = 50.5;
+spindlePlateY = 5;
+
+
+spindleDia1 = 44.5+0.6; //outer spindle diameter with clearance
+spindleHeight = 67;
+spindlePlateDiff = 2;
+wallThickness = 7;
+
+M3NutX = 5;
+
+translate([-spindlePlateX/2,0,0]) spindleHolder();
+module spindleHolder()
+{
+  difference()
+  {
+      union()
+      {
+        hull()
+        {
+          cube([spindlePlateX,spindlePlateY,spindlePlateZ]);
+          translate([spindlePlateX/2-spindleDia1/2-wallThickness,20,0]) cube([spindleDia1+wallThickness*2,1,spindlePlateZ]);
+        }
+        hull()
+        {
+          translate([spindlePlateX/2-spindleDia1/2-wallThickness,20,0]) cube([spindleDia1+wallThickness*2,1,spindlePlateZ]);
+          translate([spindlePlateX/2-spindleDia1/2-wallThickness,38,0]) cube([spindleDia1+wallThickness*2,1,spindlePlateZ]);
+        }
+        hull()
+        {
+          translate([spindlePlateX/2-spindleDia1/2-wallThickness,38,0]) cube([spindleDia1+wallThickness*2,1,spindlePlateZ]);
+          translate([spindlePlateX/2-spindleDia1/8-wallThickness,50,0]) cube([spindleDia1/4+wallThickness*2,1,spindlePlateZ]);
+        }
+      }
+
+      /* side cutout */
+      translate([13,21,0])
+      cube([wallThickness*2,2,spindlePlateZ]);
+
+      translate([spindlePlateX/2,spindleDia1/2+spindlePlateDiff,0])
+      spindleDummy(spindleDia1,spindleHeight);
+
+      translate([spindlePlateX/2,0,0])
+      union()
+      {
+        translate([LM8U_RefPoint02[0][0]+M5_XDiff,33+2,CarriageHeight/2]) plateScrewCutout(rotX=90, rotY=0, rotZ=0);
+        translate([LM8U_RefPoint02[1][0]-M5_XDiff,33+2,CarriageHeight/2]) plateScrewCutout(rotX=90, rotY=0, rotZ=0);
+        translate([LM8U_RefPoint02[0][0]+M5_XDiff,33+2,CarriageHeight/2+CarriageHeight]) plateScrewCutout(rotX=90, rotY=0, rotZ=0);
+        translate([LM8U_RefPoint02[1][0]-M5_XDiff,33+2,CarriageHeight/2+CarriageHeight]) plateScrewCutout(rotX=90, rotY=0, rotZ=0);
+      }
+
+      translate([spindlePlateX/2,0,0])
+      union()
+      {
+        translate([-spindleDia1/2-wallThickness/2,13, M3NutX])
+        rotate([-90,0,0]) lockScrewCutout();
+
+        translate([-spindleDia1/2-wallThickness/2,13, CarriageHeight*2-M3NutX])
+        rotate([-90,180,0]) lockScrewCutout();
+      }
+
+      translate([spindlePlateX/2,0,CarriageHeight+CarriageHeight/2+4])
+      hexSaver();
+      translate([spindlePlateX/2,0,CarriageHeight])
+      hexSaver();
+      translate([spindlePlateX/2,0,CarriageHeight/2-4])
+      hexSaver();
+
+      tempZ = (CarriageHeight/2+4)/2;
+      translate([spindlePlateX/2-spindleDia1/4,0,CarriageHeight+tempZ])
+      hexSaver();
+      translate([spindlePlateX/2-spindleDia1/4,0,CarriageHeight-tempZ])
+      hexSaver();
+
+      translate([spindlePlateX/2+spindleDia1/4,0,CarriageHeight+tempZ])
+      hexSaver();
+      translate([spindlePlateX/2+spindleDia1/4,0,CarriageHeight-tempZ])
+      hexSaver();
+
+      /* air ventilation */
+      translate([spindlePlateX/2+spindleDia1/4,0,0])
+      cube([5,2,60]);
+      translate([spindlePlateX/2-5-spindleDia1/4,0,0])
+      cube([5,2,60]);
+    }
+}
+/* translate([-spindleDia1/2-wallThickness/2,13, M3NutX])
+rotate([-90,0,0]) lockScrewCutout();
+
+translate([-spindleDia1/2-wallThickness/2,13, CarriageHeight*2-M3NutX])
+rotate([-90,180,0]) lockScrewCutout(); */
+
+
+
+
+module hexSaver()
+{
+  rotate([-90,0,0])
+  rotate([0,0,90])
+  cylinder(r=5,h=100,$fn=6);
+}
+
+module lockScrewCutout()
+{
+  M3Screw(d=M3ScrewDia+0.5,h=21,dHead=M3ScrewHeadDia+0.5,hHead=M3ScrewHeadHeight+10);
+  translate([-M3NutX/2,-M3NutX/2,3]) cube([M3NutX,M3NutX*1.5,2.4]);
+}
+
+module spindleDummy(sDia1=40,sHeight1=30)
+{
+  cylinder(r=sDia1/2,h=sHeight1);
 }
