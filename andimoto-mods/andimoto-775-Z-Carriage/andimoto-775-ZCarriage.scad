@@ -33,7 +33,7 @@ CarriageHeight = 25+0.251;
 
 
 M5Dia = 5+0.4;
-M5NutDia = 9+0.2;
+M5NutDia = 9+0.4;
 M5_XDiff = 15;
 
 
@@ -153,13 +153,13 @@ module hexFiller()
 
 /* hexFiller(); */
 /* plateScrewCutout(); */
-module plateScrewCutout(rotX=0, rotY=0, rotZ=0)
+module plateScrewCutout(rotX=0, rotY=0, rotZ=0, fn=6)
 {
   rotate([rotX,rotY,rotZ])
   union()
   {
     cylinder(r=M5Dia/2, h=60);
-    rotate([0,0,30]) cylinder(r=M5NutDia/2, h=30, $fn=6);
+    rotate([0,0,30]) cylinder(r=M5NutDia/2, h=30, $fn=fn);
   }
 }
 
@@ -174,7 +174,7 @@ spindleHeight = 67;
 spindlePlateDiff = 2;
 wallThickness = 7;
 
-M3NutX = 5;
+M3NutX = 6;
 
 translate([-spindlePlateX/2,0,0]) spindleHolder();
 module spindleHolder()
@@ -196,7 +196,8 @@ module spindleHolder()
         hull()
         {
           translate([spindlePlateX/2-spindleDia1/2-wallThickness,38,0]) cube([spindleDia1+wallThickness*2,1,spindlePlateZ]);
-          translate([spindlePlateX/2-spindleDia1/8-wallThickness,50,0]) cube([spindleDia1/4+wallThickness*2,1,spindlePlateZ]);
+          translate([spindlePlateX/2-spindleDia1/8-wallThickness,spindleDia1+spindlePlateDiff+wallThickness/2,0])
+            cube([spindleDia1/4+wallThickness*2,1,spindlePlateZ]);
         }
       }
 
@@ -210,10 +211,10 @@ module spindleHolder()
       translate([spindlePlateX/2,0,0])
       union()
       {
-        translate([LM8U_RefPoint02[0][0]+M5_XDiff,33+2,CarriageHeight/2]) plateScrewCutout(rotX=90, rotY=0, rotZ=0);
-        translate([LM8U_RefPoint02[1][0]-M5_XDiff,33+2,CarriageHeight/2]) plateScrewCutout(rotX=90, rotY=0, rotZ=0);
-        translate([LM8U_RefPoint02[0][0]+M5_XDiff,33+2,CarriageHeight/2+CarriageHeight]) plateScrewCutout(rotX=90, rotY=0, rotZ=0);
-        translate([LM8U_RefPoint02[1][0]-M5_XDiff,33+2,CarriageHeight/2+CarriageHeight]) plateScrewCutout(rotX=90, rotY=0, rotZ=0);
+        translate([LM8U_RefPoint02[0][0]+M5_XDiff,33+2,CarriageHeight/2]) plateScrewCutout(rotX=90, rotY=0, rotZ=0, fn=50);
+        translate([LM8U_RefPoint02[1][0]-M5_XDiff,33+2,CarriageHeight/2]) plateScrewCutout(rotX=90, rotY=0, rotZ=0, fn=50);
+        translate([LM8U_RefPoint02[0][0]+M5_XDiff,33+2,CarriageHeight/2+CarriageHeight]) plateScrewCutout(rotX=90, rotY=0, rotZ=0, fn=50);
+        translate([LM8U_RefPoint02[1][0]-M5_XDiff,33+2,CarriageHeight/2+CarriageHeight]) plateScrewCutout(rotX=90, rotY=0, rotZ=0, fn=50);
       }
 
       translate([spindlePlateX/2,0,0])
@@ -234,21 +235,36 @@ module spindleHolder()
       hexSaver();
 
       tempZ = (CarriageHeight/2+4)/2;
-      translate([spindlePlateX/2-spindleDia1/4,0,CarriageHeight+tempZ])
+      translate([spindlePlateX/2-spindleDia1/6,0,CarriageHeight+tempZ])
       hexSaver();
-      translate([spindlePlateX/2-spindleDia1/4,0,CarriageHeight-tempZ])
+      translate([spindlePlateX/2-spindleDia1/6,0,CarriageHeight-tempZ])
       hexSaver();
 
-      translate([spindlePlateX/2+spindleDia1/4,0,CarriageHeight+tempZ])
+      translate([spindlePlateX/2+spindleDia1/6,0,CarriageHeight+tempZ])
       hexSaver();
-      translate([spindlePlateX/2+spindleDia1/4,0,CarriageHeight-tempZ])
+      translate([spindlePlateX/2+spindleDia1/6,0,CarriageHeight-tempZ])
+      hexSaver();
+
+      translate([spindlePlateX/2+spindleDia1/3,0,CarriageHeight])
+      hexSaver();
+      translate([spindlePlateX/2-spindleDia1/3,0,CarriageHeight])
+      hexSaver();
+
+      translate([spindlePlateX/2+spindleDia1/3,0,CarriageHeight/2-4])
+      hexSaver();
+      translate([spindlePlateX/2-spindleDia1/3,0,CarriageHeight/2-4])
+      hexSaver();
+
+      translate([spindlePlateX/2+spindleDia1/3,0,CarriageHeight+CarriageHeight/2+4])
+      hexSaver();
+      translate([spindlePlateX/2-spindleDia1/3,0,CarriageHeight+CarriageHeight/2+4])
       hexSaver();
 
       /* air ventilation */
-      translate([spindlePlateX/2+spindleDia1/4,0,0])
-      cube([5,2,60]);
-      translate([spindlePlateX/2-5-spindleDia1/4,0,0])
-      cube([5,2,60]);
+      translate([spindlePlateX/2+spindleDia1/2-8,0,0])
+      cube([4,2,60]);
+      #translate([spindlePlateX/2-4-spindleDia1/2+8,0,0])
+      cube([4,2,60]);
     }
 }
 /* translate([-spindleDia1/2-wallThickness/2,13, M3NutX])
