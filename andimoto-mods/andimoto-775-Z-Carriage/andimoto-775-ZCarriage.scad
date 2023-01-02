@@ -4,7 +4,7 @@ Author: andimoto@posteo.de
 
 */
 $fn=100;
-
+extra = 0.1;
 
 LM8UU_TubeDia = 17+0.4; //mm
 
@@ -119,6 +119,7 @@ module andimoto755ZCarriage02()
   }
 }
 
+/* z carriage */
 if(0)
 {
   translate([0,0,0])
@@ -168,7 +169,7 @@ spindlePlateX = 86;
 spindlePlateZ = 50.5;
 spindlePlateY = 5;
 
-
+spindleDiaExtra = 0.6;
 spindleDia1 = 44.5+0.6; //outer spindle diameter with clearance
 spindleHeight = 67;
 spindlePlateDiff = 2;
@@ -176,7 +177,7 @@ wallThickness = 7;
 
 M3NutX = 6;
 
-translate([-spindlePlateX/2,0,0]) spindleHolder();
+
 module spindleHolder()
 {
   difference()
@@ -217,6 +218,7 @@ module spindleHolder()
         translate([LM8U_RefPoint02[1][0]-M5_XDiff,33+2,CarriageHeight/2+CarriageHeight]) plateScrewCutout(rotX=90, rotY=0, rotZ=0, fn=50);
       }
 
+      /* lock screw nut pocket */
       translate([spindlePlateX/2,0,0])
       union()
       {
@@ -227,6 +229,7 @@ module spindleHolder()
         rotate([-90,180,0]) lockScrewCutout();
       }
 
+      /* #### save some material #### */
       translate([spindlePlateX/2,0,CarriageHeight+CarriageHeight/2+4])
       hexSaver();
       translate([spindlePlateX/2,0,CarriageHeight])
@@ -259,19 +262,52 @@ module spindleHolder()
       hexSaver();
       translate([spindlePlateX/2-spindleDia1/3,0,CarriageHeight+CarriageHeight/2+4])
       hexSaver();
+      /* #### save some material #### */
+
 
       /* air ventilation */
       translate([spindlePlateX/2+spindleDia1/2-8,0,0])
       cube([4,2,60]);
-      #translate([spindlePlateX/2-4-spindleDia1/2+8,0,0])
+      translate([spindlePlateX/2-4-spindleDia1/2+8,0,0])
       cube([4,2,60]);
     }
 }
+
+/* spindle holder */
+/* translate([-spindlePlateX/2,0,0]) spindleHolder(); */
+
 /* translate([-spindleDia1/2-wallThickness/2,13, M3NutX])
 rotate([-90,0,0]) lockScrewCutout();
 
 translate([-spindleDia1/2-wallThickness/2,13, CarriageHeight*2-M3NutX])
 rotate([-90,180,0]) lockScrewCutout(); */
+
+pencilHolderWallThickness = 5;
+pencilMaxDia = 18;
+
+pencilHolder();
+module pencilHolder()
+{
+  difference() {
+    union()
+    {
+      cylinder(r=(spindleDia1-spindleDiaExtra)/2,h=CarriageHeight/4);
+      translate([0,0,CarriageHeight/4])
+        cylinder(r1=(spindleDia1-spindleDiaExtra)/2,r2=(pencilMaxDia)/2+pencilHolderWallThickness,h=CarriageHeight/4);
+      cylinder(r=pencilMaxDia/2+pencilHolderWallThickness,h=CarriageHeight);
+    }
+    cylinder(r=pencilMaxDia/2,h=CarriageHeight);
+    cylinder(r2=pencilMaxDia/2,r1=pencilMaxDia/2+pencilHolderWallThickness,h=CarriageHeight/4);
+
+    for(i = [0:2])
+    {
+      rotate([0,0,120*i])
+      translate([0,-pencilMaxDia/2+2,CarriageHeight*0.8])
+      rotate([90,0,0])
+      lockScrewCutout();
+    }
+  }
+}
 
 
 
