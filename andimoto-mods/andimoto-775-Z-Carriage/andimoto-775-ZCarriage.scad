@@ -322,7 +322,7 @@ module hexSaver()
 module lockScrewCutout()
 {
   M3Screw(d=M3ScrewDia+0.5,h=21,dHead=M3ScrewHeadDia+0.5,hHead=M3ScrewHeadHeight+10);
-  translate([-M3NutX/2,-M3NutX/2,3]) cube([M3NutX,M3NutX*1.5,2.4]);
+  translate([-M3NutX/2,-M3NutX/2,3]) cube([M3NutX,M3NutX*1.5,2.6]);
 }
 
 module spindleDummy(sDia1=40,sHeight1=30)
