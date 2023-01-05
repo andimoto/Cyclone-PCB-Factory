@@ -13,7 +13,7 @@ rodWallTh = 2;
 
 zEndStpHeight = 10;
 
-rodDistance =  40.0;
+rodDistance =  0.0;
 M3NutX = 6;
 M3NutWall = 2;
 
@@ -25,9 +25,7 @@ module zEndstop()
   difference() {
     union()
     {
-      screwClamp();
       translate([rodDistance,0,0]) screwClamp();
-      cube([rodDistance,rodWallTh*3,zEndStpHeight]);
 
       translate([5.5+rodDistance+rodDia/2,-10.4,0])
       rotate([0,0,76])
