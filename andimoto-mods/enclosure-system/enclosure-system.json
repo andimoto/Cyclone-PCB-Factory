@@ -1,0 +1,13 @@
+{
+    "parameterSets": {
+        "Standardwerte des Designs": {
+            "$fn": "70",
+            "beamLen": "100",
+            "beamMountCnt": "2",
+            "beamX": "20",
+            "beamY": "20",
+            "extra": "0.01"
+        }
+    },
+    "fileFormatVersion": "1"
+}
