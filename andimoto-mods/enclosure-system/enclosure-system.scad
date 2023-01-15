@@ -8,12 +8,14 @@ extra = 0.01;
 
 /* [Beam Parameters] */
 
+// do a complete enclosure simulation
+sim = true;
 // length of x side of beam
-beamX = 30;
+beamX = 20;
 // length of y side of beam
-beamY = 30;
+beamY = 20;
 // length of beam
-beamLen = 150;
+beamLen = 60;
 // Wallthickness of the beam
 beamWallThickness = 2;
 // Thickness of the beam mount plates at the ends
@@ -26,13 +28,13 @@ panelsMountingX = true;
 // enable mounting holes for panels
 panelsMountingY = true;
 
-panelsMountingHolesCnt = 5;
-mountingHolesDist = 30;
+panelsMountingHolesCnt = 2;
+mountingHolesDist = 20;
 
-panelHolesX_MoveX = 5;
+panelHolesX_MoveX = 0;
 panelHolesX_MoveZ = 0;
 
-panelHolesY_MoveY = 5;
+panelHolesY_MoveY = 0;
 panelHolesY_MoveZ = 0;
 
 MountNutDia = 6;
@@ -110,9 +112,6 @@ module corner_beam(bX=20,bY=20,bH=100, wallTh=5, btmMountTh=5)
       rotX=0, rotY=0, rotZ=0, zOffset=0);
 
 
-
-
-
     /* mounting holes for X side */
     if(panelsMountingX == true)
     {
@@ -137,4 +136,50 @@ module corner_beam(bX=20,bY=20,bH=100, wallTh=5, btmMountTh=5)
   }
 }
 
-corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
+/* corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness); */
+
+module panel(panelX=100,panelZ=100,panelThick=3)
+{
+  color("Ivory") cube([panelX,panelThick,panelZ]);
+}
+
+
+/* do simulation of enclosure */
+if(sim == true)
+{
+  translate([15,-4,0]) panel(panelX=110,panelZ=120,panelThick=4);
+  translate([15,120+15+4,0]) panel(panelX=110,panelZ=120,panelThick=4);
+  translate([110+30+4,15,0]) rotate([0,0,90]) panel(panelX=110,panelZ=120,panelThick=4);
+  translate([0,15,0]) rotate([0,0,90]) panel(panelX=110,panelZ=120,panelThick=4);
+
+
+  union()
+  {
+    translate([0,0,0]) corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
+    translate([0,0,beamLen]) corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
+  }
+
+  translate([140,0,0])
+  rotate([0,0,90])
+  union()
+  {
+    translate([0,0,0]) corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
+    translate([0,0,beamLen]) corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
+  }
+
+  translate([140,140,0])
+  rotate([0,0,180])
+  union()
+  {
+    translate([0,0,0]) corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
+    translate([0,0,beamLen]) corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
+  }
+
+  translate([0,140,0])
+  rotate([0,0,270])
+  union()
+  {
+    translate([0,0,0]) corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
+    translate([0,0,beamLen]) corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
+  }
+}
