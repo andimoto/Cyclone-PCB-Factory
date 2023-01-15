@@ -3,13 +3,10 @@ Author: andimoto@posteo.de
 ----------------------------
 
 */
-$fn=70;
-extra = 0.01;
+
 
 /* [Beam Parameters] */
 
-// do a complete enclosure simulation
-sim = true;
 // length of x side of beam
 beamX = 20;
 // length of y side of beam
@@ -28,20 +25,55 @@ panelsMountingX = true;
 // enable mounting holes for panels
 panelsMountingY = true;
 
+// amount of mounting holes on the beams
 panelsMountingHolesCnt = 2;
+// distance between mounting holes
 mountingHolesDist = 20;
 
+// move panel mounting holes on X side in x direction
 panelHolesX_MoveX = 0;
+// move panel mounting holes on X side in z direction
 panelHolesX_MoveZ = 0;
-
+// move panel mounting holes on Y side in y direction
 panelHolesY_MoveY = 0;
+// move panel mounting holes on Y side in z direction
 panelHolesY_MoveZ = 0;
 
+// Diameter of Nut (use most outer diamenter of the nut), for M3 Nut this is typically ~6mm
 MountNutDia = 6;
+// Thicknes of the Nut
 MountNutThick = 3;
+
+// completely enable or disable marker
+panelMarker = true;
+// overlapping of panel over beam [no marker => 0,beamX or beamY; 0 ]
+panelBeamOverlappingDist = 5;
+
+// if enabled, small holes will be created in the beam mounting plates to avoid rotation of beams when stacking them togehter
+fixingHoles = true;
+
+/* [Panel Parameters] */
+
+// Panel Width
+PanelFront_X = 100;
+// Panel Height
+PanelFront_Z = 100;
+// Panel Thickness
+PanelFront_Thick = 3;
+
+/* [other Parameters] */
+$fn=70;
+extra = 0.01;
+// filament thickness
+filamentDia = 1.75;
+
+// do a complete enclosure simulation
+sim = false;
+
 
 /* ################ MODULES ################## */
 /* ################ MODULES ################## */
+
 
 module Screw(ScrewDia=3,ScrewLen=10,ScrewHeadDia=6,ScrewHeadLen=3)
 {
@@ -88,6 +120,9 @@ module beamMount(bX=20,bY=20,bH=100, wallTh=5)
 
 module corner_beam(bX=20,bY=20,bH=100, wallTh=5, btmMountTh=5)
 {
+  assert((bX > 14), "WARNING: BeamX should be larger than 15mm");
+  assert((bY > 14), "WARNING: BeamY should be larger than 15mm");
+
   difference()
   {
     union()
@@ -115,12 +150,12 @@ module corner_beam(bX=20,bY=20,bH=100, wallTh=5, btmMountTh=5)
     /* mounting holes for X side */
     if(panelsMountingX == true)
     {
-      holesOffset = (beamLen - (panelsMountingHolesCnt-1)*mountingHolesDist)/2;
+      holesOffset = (bH - (panelsMountingHolesCnt-1)*mountingHolesDist)/2;
 
       translate([panelHolesX_MoveX,extra,panelHolesX_MoveZ])
-      translate([beamX/2,beamWallThickness,holesOffset])
+      translate([bX/2,wallTh,holesOffset])
       rotate([90,00,0])
-      panelMountingHoles(ScrewDia=3.4,holeLen=beamWallThickness+extra*2, holeCnt=panelsMountingHolesCnt, holeDist=mountingHolesDist);
+      panelMountingHoles(ScrewDia=3.4,holeLen=wallTh+extra*2, holeCnt=panelsMountingHolesCnt, holeDist=mountingHolesDist);
     }
 
     /* mounting holes for Y side */
@@ -129,14 +164,36 @@ module corner_beam(bX=20,bY=20,bH=100, wallTh=5, btmMountTh=5)
       holesOffset = (beamLen - (panelsMountingHolesCnt-1)*mountingHolesDist)/2;
 
       translate([0,panelHolesY_MoveY,panelHolesY_MoveZ])
-      translate([-extra,beamY/2,holesOffset])
+      translate([-extra,bY/2,holesOffset])
       rotate([90,00,90])
-      panelMountingHoles(ScrewDia=3.4,holeLen=beamWallThickness+extra*2, holeCnt=panelsMountingHolesCnt, holeDist=mountingHolesDist);
+      panelMountingHoles(ScrewDia=3.4,holeLen=wallTh+extra*2, holeCnt=panelsMountingHolesCnt, holeDist=mountingHolesDist);
     }
+
+    /* fixing holes of beam mounting plates */
+    translate([bX-bX/3,wallTh*2,-extra]) cylinder(r=filamentDia/2+0.1, h=btmMountTh+extra*2);
+    translate([wallTh*2,bY-bY/3,-extra]) cylinder(r=filamentDia/2+0.1, h=btmMountTh+extra*2);
+    translate([bX-bX/3,wallTh*2,bH-btmMountTh-extra]) cylinder(r=filamentDia/2+0.1, h=btmMountTh+extra*2);
+    translate([wallTh*2,bY-bY/3,bH-btmMountTh-extra]) cylinder(r=filamentDia/2+0.1, h=btmMountTh+extra*2);
+
+    /* panel marker */
+    translate([bX-panelBeamOverlappingDist,0,0]) panelMarker(btmMountTh);
+    translate([bX-panelBeamOverlappingDist,0,bH-btmMountTh]) panelMarker(btmMountTh);
+    translate([0,bY-panelBeamOverlappingDist,0]) panelMarker(btmMountTh);
+    translate([0,bY-panelBeamOverlappingDist,bH-btmMountTh]) panelMarker(btmMountTh);
   }
 }
 
-/* corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness); */
+module panelMarker(markerHeight=10)
+{
+  if(panelMarker == true)
+  {
+    translate([-sqrt(2*0.6^2)/2,0,-extra])
+    rotate([0,0,-45])
+    cube([0.6,0.6,markerHeight]);
+  }
+}
+
+corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
 
 module panel(panelX=100,panelZ=100,panelThick=3)
 {
@@ -148,7 +205,7 @@ module panel(panelX=100,panelZ=100,panelThick=3)
 if(sim == true)
 {
   translate([15,-4,0]) panel(panelX=110,panelZ=120,panelThick=4);
-  translate([15,120+15+4,0]) panel(panelX=110,panelZ=120,panelThick=4);
+  translate([15,110+30,0]) panel(panelX=110,panelZ=120,panelThick=4);
   translate([110+30+4,15,0]) rotate([0,0,90]) panel(panelX=110,panelZ=120,panelThick=4);
   translate([0,15,0]) rotate([0,0,90]) panel(panelX=110,panelZ=120,panelThick=4);
 
