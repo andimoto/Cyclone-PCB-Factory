@@ -9,11 +9,11 @@ extra = 0.01;
 /* [Beam Parameters] */
 
 // length of x side of beam
-beamX = 20;
+beamX = 30;
 // length of y side of beam
-beamY = 20;
+beamY = 30;
 // length of beam
-beamLen = 50;
+beamLen = 150;
 // Wallthickness of the beam
 beamWallThickness = 2;
 // Thickness of the beam mount plates at the ends
@@ -21,6 +21,19 @@ beamMountThickness = 5;
 
 // generate beam mount plates only on one side of beam or on both
 beamMountCnt=2; // [0,1,2]
+// enable mounting holes for panels
+panelsMountingX = true;
+// enable mounting holes for panels
+panelsMountingY = true;
+
+panelsMountingHolesCnt = 5;
+mountingHolesDist = 30;
+
+panelHolesX_MoveX = 5;
+panelHolesX_MoveZ = 0;
+
+panelHolesY_MoveY = 5;
+panelHolesY_MoveZ = 0;
 
 MountNutDia = 6;
 MountNutThick = 3;
@@ -49,6 +62,15 @@ module NutScrewCutout(ScrewDia=3, ScrewCutoutLen=15, NutDia=6, NutCutoutLen=10, 
 /* translate([beamWallThickness,beamWallThickness,extra+beamMountThickness-3])
 NutScrewCutout(ScrewDia=3, ScrewCutoutLen=15, NutDia=6, NutCutoutLen=3, rotX=180, rotY=0, rotZ=0, zOffset=3); */
 
+module panelMountingHoles(ScrewDia=3,holeLen=beamWallThickness, holeCnt=3, holeDist=20)
+{
+  for(i=[0:1:holeCnt-1])
+  {
+    translate([0,i*holeDist,0]) cylinder(r=ScrewDia/2,h=holeLen);
+  }
+}
+/* rotate([90,00,0])
+panelMountingHoles(ScrewDia=3,holeLen=beamWallThickness, holeCnt=5, holeDist=20); */
 
 module beamMount(bX=20,bY=20,bH=100, wallTh=5)
 {
@@ -62,7 +84,7 @@ module beamMount(bX=20,bY=20,bH=100, wallTh=5)
 
 
 
-module enclosure_beam(bX=20,bY=20,bH=100, wallTh=5, btmMountTh=5)
+module corner_beam(bX=20,bY=20,bH=100, wallTh=5, btmMountTh=5)
 {
   difference()
   {
@@ -78,13 +100,41 @@ module enclosure_beam(bX=20,bY=20,bH=100, wallTh=5, btmMountTh=5)
         translate([0,0,bH-btmMountTh]) beamMount(bX,bY,wallTh,btmMountTh);
     }
 
+    /* bottom screw cutouts for connecting multiple beams together */
     translate([wallTh+4,wallTh+4,extra+btmMountTh-MountNutThick])
     NutScrewCutout(ScrewDia=3, ScrewCutoutLen=btmMountTh+extra*2, NutDia=MountNutDia, NutCutoutLen=MountNutThick,
       rotX=180, rotY=0, rotZ=0, zOffset=MountNutThick);
-
+    /* top screw cutouts for connecting multiple beams together */
     translate([wallTh+4,wallTh+4,-extra+bH-btmMountTh])
     NutScrewCutout(ScrewDia=3, ScrewCutoutLen=btmMountTh+extra*2, NutDia=MountNutDia, NutCutoutLen=MountNutThick,
       rotX=0, rotY=0, rotZ=0, zOffset=0);
+
+
+
+
+
+    /* mounting holes for X side */
+    if(panelsMountingX == true)
+    {
+      holesOffset = (beamLen - (panelsMountingHolesCnt-1)*mountingHolesDist)/2;
+
+      translate([panelHolesX_MoveX,extra,panelHolesX_MoveZ])
+      translate([beamX/2,beamWallThickness,holesOffset])
+      rotate([90,00,0])
+      panelMountingHoles(ScrewDia=3.4,holeLen=beamWallThickness+extra*2, holeCnt=panelsMountingHolesCnt, holeDist=mountingHolesDist);
+    }
+
+    /* mounting holes for Y side */
+    if(panelsMountingY == true)
+    {
+      holesOffset = (beamLen - (panelsMountingHolesCnt-1)*mountingHolesDist)/2;
+
+      translate([0,panelHolesY_MoveY,panelHolesY_MoveZ])
+      translate([-extra,beamY/2,holesOffset])
+      rotate([90,00,90])
+      panelMountingHoles(ScrewDia=3.4,holeLen=beamWallThickness+extra*2, holeCnt=panelsMountingHolesCnt, holeDist=mountingHolesDist);
+    }
   }
 }
-enclosure_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
+
+corner_beam(beamX,beamY,beamLen, beamWallThickness, beamMountThickness);
